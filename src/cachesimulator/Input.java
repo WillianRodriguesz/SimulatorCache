@@ -4,13 +4,8 @@ package cachesimulator;
 import java.util.Scanner;
 
 public class Input {
-    private String inputCode;
-    private Integer nsets;
-    private Integer bsize;
-    private Integer assoc;
-    private String politicaSb;
-    private Integer flagSaida;
-    private String arquivoEntrada;
+    private String inputCode, politicaSb, arquivoEntrada;
+    private Integer nsets, bsize, assoc, flagSaida;
     
  // metodo para pegar a entrada do usuario atraves de uma String //  
     public void inputCode(){
@@ -34,7 +29,9 @@ public class Input {
             System.out.println("Error: > Entrada de parametros invalida");
         }
     }
+    
 
+    
     public Integer getNsets() {
         return nsets;
     }
