@@ -29,10 +29,6 @@ public class Cache {
     }
 
     public void codeCache() {
-
-        /*for (int[]row:cache){
-            System.out.println(Arrays.toString(row));
-        }*/
         lerEndereço();
     }
 
@@ -81,13 +77,6 @@ public class Cache {
         return resultado;
     }
 
-//    private void initCache() {
-//        for (int i = 0; i < this.nLinhas; i++) {
-//            for (int j = 0; j < this.nColunas; j++) {
-//                cache[i][j] = null;
-//            }
-//        }
-//    }
     public String getArquivoEntrada() {
         return arquivoEntrada;
     }
