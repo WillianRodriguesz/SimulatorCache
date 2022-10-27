@@ -28,14 +28,11 @@ public class Cache {
         this.bSize = input.getBsize();
         this.nSets = input.getNsets();
         this.cache = new ArrayList();
-        this.assoc = input.getAssoc() - 1;             //começa em -1 pois o array começa com 0 
+        this.assoc = input.getAssoc();             //começa em -1 pois o array começa com 0 
         for (int i = 0; i < input.getAssoc(); i++) {
             this.cache.add(Arrays.asList(new String[nLinhas]));
         }
-        this.hit = 0;
-        this.missCapacidade = 0;
-        this.missConflito = 0;
-        this.missConflito = 0;
+       
     }
 
     public void codeCache() {
@@ -75,7 +72,7 @@ public class Cache {
         String tag = binario.substring(0, nBitsTag);
 
         //System.out.println("tag=" + tag);
-        System.out.println("indice=" + indice);
+       // System.out.println("indice=" + indice);
         addCache(indice, tag);
         //System.out.println("offset=" + offset);
         System.out.println("\n");
@@ -90,7 +87,7 @@ public class Cache {
             if (cache.get(i).get(endereco) == null) {
                 cache.get(i).set(endereco, tag);
                 //this.missCompulsorio++;
-
+                System.out.println("entrou no compulsorio");
                 this.missCompulsorio++;
 
             } else if (cache.get(i).get(endereco).equals(tag)) {
@@ -100,15 +97,17 @@ public class Cache {
                 for (i = this.assoc; i <= 0; i--) {
                     for (int j = this.nSets; j <= 0; j--) {
                         if (cache.get(i).get(j) == null) {
+                            System.out.println("entro no conflito");
                             this.missConflito++;
                             break;
                         } else {
+                            System.out.println("entrou na capacidade");
                             this.missCapacidade++;
                         }
 
                     }
                 }
-
+                System.out.println("saiu");
                 cache.get(random()).set(endereco, tag);
             }
 
