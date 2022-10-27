@@ -25,6 +25,7 @@ public class Input {
             this.politicaSb = arraySplit[4];
             this.flagSaida = Integer.parseInt(arraySplit[5]);
             this.arquivoEntrada = arraySplit[6];
+            
         } else {
             System.out.println("Error: > Entrada de parametros invalida");
         }

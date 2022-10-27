@@ -16,6 +16,11 @@ public class Cache {
     private String arquivoEntrada;
     private Integer bSize;
     private Integer nSets;
+    private Integer assoc;
+    private int missCompulsorio;
+    private int missConflito;
+    private int missCapacidade;
+    private int hit;
 
     public Cache(Input input) {
         this.arquivoEntrada = input.getArquivoEntrada();
@@ -23,9 +28,14 @@ public class Cache {
         this.bSize = input.getBsize();
         this.nSets = input.getNsets();
         this.cache = new ArrayList();
+        this.assoc = input.getAssoc() - 1;             //começa em -1 pois o array começa com 0 
         for (int i = 0; i < input.getAssoc(); i++) {
             this.cache.add(Arrays.asList(new String[nLinhas]));
         }
+        this.hit = 0;
+        this.missCapacidade = 0;
+        this.missConflito = 0;
+        this.missConflito = 0;
     }
 
     public void codeCache() {
@@ -39,7 +49,7 @@ public class Cache {
             DataInputStream arquivoOut = new DataInputStream(arquivo);
             while (true) {
                 String nextLine = Integer.toBinaryString(arquivoOut.readInt());
-                System.out.println(nextLine);
+                //System.out.println(nextLine);
                 formataBinario(nextLine);
 
             }
@@ -52,7 +62,7 @@ public class Cache {
         String aux = "0";
         aux = aux.repeat(tamanhoAux);
         binario = aux + binario; // concatena 0 a esquerda do endereço
-        System.out.println(binario);
+        //System.out.println(binario);
         separaBinario(binario);
     }
 
@@ -64,10 +74,54 @@ public class Cache {
         String indice = binario.substring(nBitsTag, 32 - nBitsOffset);
         String tag = binario.substring(0, nBitsTag);
 
-        System.out.println("tag=" + tag);
+        //System.out.println("tag=" + tag);
         System.out.println("indice=" + indice);
-        System.out.println("offset=" + offset);
+        addCache(indice, tag);
+        //System.out.println("offset=" + offset);
         System.out.println("\n");
+    }
+
+    private void addCache(String indice, String tag) {
+        int endereco = Integer.parseInt(indice, 2);
+        //System.out.println("endereço em decimal => " + endereco);
+        //System.out.println("qtd de assoc da cache aqui" + cache.size());
+
+        for (int i = this.assoc; i <= 0; i--) {
+            if (cache.get(i).get(endereco) == null) {
+                cache.get(i).set(endereco, tag);
+                //this.missCompulsorio++;
+
+                this.missCompulsorio++;
+
+            } else if (cache.get(i).get(endereco).equals(tag)) {
+                this.hit++;
+
+            } else {
+                for (i = this.assoc; i <= 0; i--) {
+                    for (int j = this.nSets; j <= 0; j--) {
+                        if (cache.get(i).get(j) == null) {
+                            this.missConflito++;
+                            break;
+                        } else {
+                            this.missCapacidade++;
+                        }
+
+                    }
+                }
+
+                cache.get(random()).set(endereco, tag);
+            }
+
+        }
+        resultado();
+    }
+
+    private void resultado() {
+        System.out.println("qtd de hit: " + this.hit);
+        System.out.println("qtd de compulsorio: " + this.missCompulsorio);
+        System.out.println("qtd de conflito: " + this.missConflito);
+        System.out.println("qtd de capacidade: " + this.missCapacidade);
+       
     }
 
     //metodo para calcular log2 //
@@ -75,6 +129,11 @@ public class Cache {
 
         int resultado = (int) (Math.log(number) / Math.log(2));
         return resultado;
+    }
+
+    //gera um numero aleatorio //
+    private int random() {
+        return (int) ((Math.random() * (this.assoc - 0)) + 0);
     }
 
     public String getArquivoEntrada() {
