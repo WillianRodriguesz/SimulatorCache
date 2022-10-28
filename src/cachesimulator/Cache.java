@@ -9,7 +9,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-//  cache_simulator 256 4 1 R 1 bin_100.bin  //
+/*
+cache_simulator 256 4 1 R 1 bin_100.bin
+cache_simulator 128 2 4 R 1 bin_1000.bin
+ */
 public class Cache {
 
     private List<List<String>> cache;
@@ -24,15 +27,15 @@ public class Cache {
 
     public Cache(Input input) {
         this.arquivoEntrada = input.getArquivoEntrada();
-        Integer nLinhas = input.getNsets() / input.getAssoc();
+        Integer nLinhas = input.getNsets(); // input.getAssoc();
         this.bSize = input.getBsize();
         this.nSets = input.getNsets();
         this.cache = new ArrayList();
-        this.assoc = input.getAssoc();             //começa em -1 pois o array começa com 0 
+        this.assoc = input.getAssoc();
         for (int i = 0; i < input.getAssoc(); i++) {
             this.cache.add(Arrays.asList(new String[nLinhas]));
         }
-       
+
     }
 
     public void codeCache() {
@@ -72,21 +75,18 @@ public class Cache {
         String tag = binario.substring(0, nBitsTag);
 
         //System.out.println("tag=" + tag);
-       // System.out.println("indice=" + indice);
+        // System.out.println("indice=" + indice);
         addCache(indice, tag);
         //System.out.println("offset=" + offset);
         System.out.println("\n");
     }
 
     private void addCache(String indice, String tag) {
-        int endereco = Integer.parseInt(indice, 2);
-        //System.out.println("endereço em decimal => " + endereco);
-        //System.out.println("qtd de assoc da cache aqui" + cache.size());
-
-        for (int i = this.assoc; i <= 0; i--) {
+        int endereco = Integer.parseInt(indice, 2) % this.nSets;
+        int flagCapacidade = 0;
+        for (int i = this.assoc - 1; i >= 0; i--) {
             if (cache.get(i).get(endereco) == null) {
                 cache.get(i).set(endereco, tag);
-                //this.missCompulsorio++;
                 System.out.println("entrou no compulsorio");
                 this.missCompulsorio++;
 
@@ -94,20 +94,21 @@ public class Cache {
                 this.hit++;
 
             } else {
-                for (i = this.assoc; i <= 0; i--) {
-                    for (int j = this.nSets; j <= 0; j--) {
-                        if (cache.get(i).get(j) == null) {
+                for (int f = this.assoc - 1; f >= 0; f--) {
+                    for (int j = this.nSets; j >= 0; j--) {
+                        if (cache.get(f).get(j) == null) {
                             System.out.println("entro no conflito");
-                            this.missConflito++;
-                            break;
-                        } else {
-                            System.out.println("entrou na capacidade");
-                            this.missCapacidade++;
+                            flagCapacidade++;
                         }
 
                     }
                 }
-                System.out.println("saiu");
+
+                if (flagCapacidade > 0) {
+                    this.missConflito++;
+                } else {
+                    this.missCapacidade++;
+                }
                 cache.get(random()).set(endereco, tag);
             }
 
@@ -120,7 +121,7 @@ public class Cache {
         System.out.println("qtd de compulsorio: " + this.missCompulsorio);
         System.out.println("qtd de conflito: " + this.missConflito);
         System.out.println("qtd de capacidade: " + this.missCapacidade);
-       
+
     }
 
     //metodo para calcular log2 //
