@@ -113,10 +113,9 @@ public class Cache {
             }
 
         }
-        resultado();
     }
 
-    private void resultado() {
+    public void resultado() {
         System.out.println("qtd de hit: " + this.hit);
         System.out.println("qtd de compulsorio: " + this.missCompulsorio);
         System.out.println("qtd de conflito: " + this.missConflito);
