@@ -24,6 +24,8 @@ public class Cache {
     private int missConflito;
     private int missCapacidade;
     private int hit;
+    private int flagSaida;
+    private int totalAcessos;
 
     public Cache(Input input) {
         this.arquivoEntrada = input.getArquivoEntrada();
@@ -32,6 +34,7 @@ public class Cache {
         this.nSets = input.getNsets();
         this.cache = new ArrayList();
         this.assoc = input.getAssoc();
+        this.flagSaida = input.getFlagSaida();
         for (int i = 0; i < input.getAssoc(); i++) {
             this.cache.add(Arrays.asList(new String[nLinhas]));
         }
@@ -49,7 +52,7 @@ public class Cache {
             DataInputStream arquivoOut = new DataInputStream(arquivo);
             while (true) {
                 String nextLine = Integer.toBinaryString(arquivoOut.readInt());
-                //System.out.println(nextLine);
+                this.totalAcessos++;
                 formataBinario(nextLine);
 
             }
@@ -75,51 +78,72 @@ public class Cache {
         String tag = binario.substring(0, nBitsTag);
 
         //System.out.println("tag=" + tag);
-        // System.out.println("indice=" + indice);
-        addCache(indice, tag);
+        //System.out.println("indice=" + indice);
         //System.out.println("offset=" + offset);
-        System.out.println("\n");
+        //System.out.println("\n");
+        addCache(indice, tag);
     }
 
     private void addCache(String indice, String tag) {
         int endereco = Integer.parseInt(indice, 2) % this.nSets;
-        int flagCapacidade = 0;
-        for (int i = this.assoc - 1; i >= 0; i--) {
-            if (cache.get(i).get(endereco) == null) {
-                cache.get(i).set(endereco, tag);
-                System.out.println("entrou no compulsorio");
+        int flag = 0;
+        /*if (this.assoc == 1) {
+            if (cache.get(0).get(endereco) == null) { // verifica se o bit de val = 0
+                cache.get(0).set(endereco, tag);
                 this.missCompulsorio++;
-
-            } else if (cache.get(i).get(endereco).equals(tag)) {
+            } else if (cache.get(0).get(endereco).equals(tag)) { // verifica se o tag da cache é igual ao do endereco
                 this.hit++;
-
-            } else {
-                for (int f = this.assoc - 1; f >= 0; f--) {
-                    for (int j = this.nSets; j >= 0; j--) {
-                        if (cache.get(f).get(j) == null) {
-                            System.out.println("entro no conflito");
-                            flagCapacidade++;
-                        }
-
-                    }
-                }
-
-                if (flagCapacidade > 0) {
+            } else { //verifica se é miss conflito ou capacidade
+                if (verificaCache() == false) {
                     this.missConflito++;
                 } else {
                     this.missCapacidade++;
                 }
-                cache.get(random()).set(endereco, tag);
+                cache.get(0).set(endereco, tag);
             }
+        } else {*/
+            for (int i = 0; i < this.assoc; i++) {
+                if (cache.get(i).get(endereco) == null) { // veririfca se o bit val = 0
+                    this.missCompulsorio++;
+                    cache.get(i).set(endereco, tag);
+                } else if (cache.get(i).get(endereco).equals(tag)) {
+                    this.hit++;
+                } else { //verifica se é miss conflito ou capacidade
+                    if (verificaCache() == false) {
+                        this.missConflito++;
+                        flag = 1;
+                    } else {
+                        this.missCapacidade++;
+                        flag = 1;
+                    }
+                }
 
+            //}
+            if (flag == 1) {
+                cache.get(random()).set(endereco, tag); //adiciona de forma random o tag na cache
+            }
         }
     }
 
+    public boolean verificaCache() {
+        for (int f = this.assoc - 1; f >= 0; f--) {
+            for (int j = this.nSets; j >= 0; j--) {
+                if (cache.get(f).get(j) == null) {
+                    return false; // cache n esta cheia
+                }
+            }
+        }
+        return true; // cache cheia
+    }
+
     public void resultado() {
-        System.out.println("qtd de hit: " + this.hit);
-        System.out.println("qtd de compulsorio: " + this.missCompulsorio);
-        System.out.println("qtd de conflito: " + this.missConflito);
-        System.out.println("qtd de capacidade: " + this.missCapacidade);
+
+        if (this.flagSaida == 1) {
+            System.out.println("qtd de hit: " + this.hit);
+            System.out.println("qtd de compulsorio: " + this.missCompulsorio);
+            System.out.println("qtd de conflito: " + this.missConflito);
+            System.out.println("qtd de capacidade: " + this.missCapacidade);
+        }
 
     }
 
