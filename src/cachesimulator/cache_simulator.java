@@ -13,6 +13,7 @@ public class cache_simulator {
         Cache cache = new Cache(input);
         cache.codeCache();
         cache.resultado();
+     
         
     }
 

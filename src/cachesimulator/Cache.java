@@ -12,6 +12,7 @@ import java.util.List;
 /*
 cache_simulator 256 4 1 R 1 bin_100.bin
 cache_simulator 128 2 4 R 1 bin_1000.bin
+cache_simulator 256 1 2 R 1 bin_10000.bin
 cache_simulator 512 8 2 R 1 vortex.in.sem.persons.bin
  */
 public class Cache {
@@ -27,7 +28,7 @@ public class Cache {
     private float missCapacidade;
     private float hit;
     private int flagSaida; //Flag para saber qual tipo de saída o usuário quer 1 ou 0;
-    private float totalAcessos;
+    private int totalAcessos;
 
     public Cache(Input input) {
         //Cada variável recebe seus respectivos valores de acordo com a entrada
@@ -38,8 +39,8 @@ public class Cache {
         this.cache = new ArrayList();
         this.assoc = input.getAssoc();
         this.flagSaida = input.getFlagSaida();
-        for (int i = 0; i < input.getAssoc(); i++) {
-            this.cache.add(Arrays.asList(new String[nLinhas]));//Adiciona os valores da cache em uma matriz;
+        for (int i = 0; i < nLinhas; i++) {
+            this.cache.add(Arrays.asList(new String[input.getAssoc()]));//Adiciona os valores da cache em uma matriz;
         }
     }
 
@@ -83,33 +84,35 @@ public class Cache {
 
     private void addCache(String indice, String tag) {
         int endereco = Integer.parseInt(indice, 2) % this.nSets;
-        int flag = 0;
+        //ImprimirCacheTESTE();
+
         for (int i = 0; i < this.assoc; i++) {
-            if (cache.get(i).get(endereco) == null) { // veririfca se o bit val = 0 ou seja verifica se este local da cache não está vazio
+
+            if (cache.get(endereco).get(i) == null) { // veririfca se o bit val = 0 ou seja verifica se este local da cache não está vazio
                 this.missCompulsorio++;
-                cache.get(i).set(endereco, tag);//adiciona o número neste local
+                cache.get(endereco).set(i, tag);//adiciona o número neste local
                 break;
-            } else if (cache.get(i).get(endereco).equals(tag)) {//verficia se o tag é igual, se for é hit
+            }
+            if (cache.get(endereco).get(i).equals(tag)) {//verficia se o tag é igual, se for é hit
                 this.hit++;
                 break;
-            } else { //verifica se é miss conflito ou capacidade
-                if (verificaCache() == false) {
-                    this.missConflito++;
-                    flag = 1;
-                } else {
+            }
+            if (i == this.assoc - 1) {
+                if (verificaCacheCheia()) {
                     this.missCapacidade++;
-                    flag = 1;
+                } else {
+                    this.missConflito++;
                 }
+                cache.get(endereco).set(random(), tag);
             }
-            if (flag == 1) {
-                cache.get(random()).set(endereco, tag); //adiciona de forma random o tag na cache
-            }
+
         }
+
     }
 
-    public boolean verificaCache() {    //função que verifica se é miss compusório ou de capacidade, verificando se a cache está vazia ou não
-        for (int f = this.assoc - 1; f >= 0; f--) {
-            for (int j = this.nSets - 1; j >= 0; j--) {
+    public boolean verificaCacheCheia() {    //função que verifica se é miss compusório ou de capacidade, verificando se a cache está vazia ou não
+        for (int f = 0; f < this.nSets; f++) {
+            for (int j = 0; j < this.assoc; j++) {
                 if (cache.get(f).get(j) == null) {
                     return false; // cache n esta cheia
                 }
@@ -119,12 +122,14 @@ public class Cache {
     }
 
     public void resultado() {//Printa o resultado de acordo com a flag de saida: 0 ou 1
-
+        float missesTotal = this.missCapacidade + this.missCompulsorio + this.missConflito;
         if (this.flagSaida == 1) {
-            float missesTotal = this.missCapacidade + this.missCompulsorio + this.missConflito;
-            System.out.println(this.totalAcessos + " " + this.hit / this.totalAcessos + " " + missesTotal / this.totalAcessos + " " + this.missCompulsorio / missesTotal + " " + this.missCapacidade / missesTotal + " " + this.missConflito / missesTotal);
+            //System.out.println("<numero Acesso> <taxa hit> <taxa miss> <taxaCompulsorio> <taxa Miss Capacidade> <Miss Conflito>");
+            System.out.println(this.totalAcessos + " " + String.format("%.2f", this.hit / this.totalAcessos) + " "
+                    + String.format("%.2f", missesTotal / this.totalAcessos) + " " + String.format("%.2f", this.missCompulsorio / missesTotal) + " " + String.format("%.2f", this.missCapacidade / missesTotal) + " " + String.format("%.2f", this.missConflito / missesTotal));
+
         } else {
-            System.out.println("Taxa de hits: " + this.hit / this.totalAcessos);
+            System.out.println("Taxa de hits: " + String.format("%.2f", this.hit / this.totalAcessos));
         }
 
     }
